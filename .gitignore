@@ -1,0 +1,5 @@
+chat_ids.txt
+fs_calendar.ics*
+*_config.py
+venv/
+.idea/
