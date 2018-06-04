@@ -129,7 +129,7 @@ def abo(bot, update, remove=False):
             lines.append(str(update.effective_chat.id))
 
         with open('chat_ids.txt', 'w') as chat_file:
-            chat_file.writelines(lines)
+            chat_file.write("\n".join(lines))
         if remove:
             send_message(bot, update.message.chat_id,
                          'Du wirst nun nicht mehr benachrichtigt, wenn eine neuer Kalendereintrag hinzukommt')
