@@ -9,8 +9,24 @@ if __name__ == "__main__":
     with open("__init__.py", "r") as file:
         version = re.search('^__version__\s*=\s*"(.*)"', file.read(), re.M).group(1)
 
-    with open("README.md", "rb") as f:
-        long_descr = f.read().decode("utf-8")
+    with open("README.md", "rb") as file:
+        long_descr = file.read().decode("utf-8")
+
+    if not os.path.exists("public_config.py"):
+        with open("public_config.py", "wb+") as file:
+            content = '''cal_url = ''\n
+                        check_interval = 5\n
+                        cal_file_name_new = 'calendar.ics.new'\n
+                        cal_file_name = 'calendar.ics'\n
+                        chat_ids_file_name = 'chat_ids.txt'\n
+                        server_timezone = 'Europe/Berlin'\n
+                        verbose = True\n'''
+            file.write(content.encode("utf-8"))
+
+    if not os.path.exists("private_config.py"):
+        with open("private_config.py", "wb+") as file:
+            content = '''telegram_token = ''\n'''
+            file.write(content.encode("utf-8"))
 
     setup(
         name="calendar_bot",

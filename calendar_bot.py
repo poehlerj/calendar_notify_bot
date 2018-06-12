@@ -9,7 +9,8 @@ from icalendar import Calendar
 from telegram.ext import Updater, CommandHandler
 
 from private_config import telegram_token
-from public_config import cal_url, check_interval, cal_file_name_new, cal_file_name, server_timezone
+from public_config import cal_url, check_interval, cal_file_name_new, cal_file_name, server_timezone, verbose, \
+    chat_ids_file_name
 
 # Enable logging
 
@@ -63,6 +64,8 @@ def create_event_list(file_name):
 
 
 def send_message(bot, chat_id, message):
+    if verbose:
+        logger.debug("Sending message to " + chat_id + ": \n\t" + message)
     bot.send_message(chat_id=chat_id,
                      text=message,
                      parse_mode=telegram.ParseMode.MARKDOWN)
@@ -71,7 +74,7 @@ def send_message(bot, chat_id, message):
 def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
     if os.stat(cal_file_name_new).st_mtime > check_interval:
         r = requests.get(cal_url, allow_redirects=True)
-        with open(cal_file_name_new, 'wb') as file:
+        with open(cal_file_name_new, 'wb+') as file:
             file.write(r.content)
 
     current_events = create_event_list(cal_file_name_new)
@@ -90,13 +93,15 @@ def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
                     new_events.append(event)
 
     if len(new_events) != 0:
+        if verbose:
+            logger.debug("Got new event(s): " + "\n\t".join(map(lambda x: x.summary, new_events)))
         message = ''
         for event in new_events:
             message += event.to_string()
 
         send_message(bot, chat_id, message)
         with open(cal_file_name_new, 'r') as new_events_file:
-            with open(cal_file_name, 'w') as current_events_file:
+            with open(cal_file_name, 'w+') as current_events_file:
                 current_events_file.writelines(new_events_file)
     elif not silent:
         send_message(bot, chat_id, 'Keine neuen Events verfügbar')
@@ -107,7 +112,7 @@ def events(bot, update):
 
 
 def callback_minute(bot, job):
-    chat_ids_file = open('chat_ids.txt', 'r')
+    chat_ids_file = open(chat_ids_file_name, 'r')
     lines = [str(line).replace('\n', '') for line in chat_ids_file]
     chat_ids_file.close()
     for line in lines:
@@ -115,20 +120,30 @@ def callback_minute(bot, job):
 
 
 def abo(bot, update, remove=False):
-    with open('chat_ids.txt', 'r') as file:
+    with open(chat_ids_file_name, 'r') as file:
         lines = [str(line).replace('\n', '') for line in file]
     if str(update.effective_chat.id) in lines and not remove:
+        if verbose:
+            logger.debug(update.effective_chat.id + ", " + update.effective_user.username
+                         + " tried to do an abo, but was already receiving notifications")
         send_message(bot, update.message.chat_id, 'Du hast die automatische Kalenderbenachrichtigung bereits abonniert')
     elif str(update.effective_chat.id) not in lines and remove:
+        if verbose:
+            logger.debug(update.effective_chat.id + ", " + update.effective_user.username
+                         + " tried to do a deabo, but was not receiving notifications")
         send_message(bot, update.message.chat_id,
                      'Du hattest die automatische Kalenderbenachrichtigung nicht abonniert')
     else:
         if remove:
+            if verbose:
+                logger.debug(update.effective_chat.id + ", " + update.effective_user.username + " did a deabo")
             lines.remove(str(update.effective_chat.id))
         else:
+            if verbose:
+                logger.debug(update.effective_chat.id + ", " + update.effective_user.username + " did a abo")
             lines.append(str(update.effective_chat.id))
 
-        with open('chat_ids.txt', 'w') as chat_file:
+        with open(chat_ids_file_name, 'w') as chat_file:
             chat_file.write("\n".join(lines))
         if remove:
             send_message(bot, update.message.chat_id,
