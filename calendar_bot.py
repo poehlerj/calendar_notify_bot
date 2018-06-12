@@ -1,20 +1,37 @@
 import datetime
 import logging
+import logging.config
 import os
 
 import pytz
 import requests
 import telegram
+import yaml
 from icalendar import Calendar
 from telegram.ext import Updater, CommandHandler
 
 from private_config import telegram_token
-from public_config import cal_url, check_interval, cal_file_name_new, cal_file_name, server_timezone, verbose, \
-    chat_ids_file_name
+from public_config import cal_url, check_interval, cal_file_name_new, cal_file_name, server_timezone, chat_ids_file_name
+
+
+def setup_logging(default_path='logging.yaml', default_level=logging.INFO, env_key='LOG_CFG'):
+    """
+    Setup logging configuration
+    """
+    path = default_path
+    value = os.getenv(env_key, None)
+    if value:
+        path = value
+    if os.path.exists(path):
+        with open(path, 'rt') as f:
+            config = yaml.safe_load(f.read())
+        logging.config.dictConfig(config)
+    else:
+        logging.basicConfig(level=default_level)
+
 
 # Enable logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
+setup_logging()
 logger = logging.getLogger(__name__)
 
 
@@ -52,19 +69,21 @@ class Event:
 def create_event_list(file_name):
     event_list = []
     file = open(file_name, 'rb')
-    gcal = Calendar.from_ical(file.read())
-    for component in gcal.walk():
+    cal = Calendar.from_ical(file.read())
+    for component in cal.walk():
         if component.name == "VEVENT":
-            event = Event(component.get('summary'), component.get('description'), component.decoded('dtstart'),
-                          component.decoded('dtend'), component.get('location'))
+            event = Event(component.get('summary'),
+                          component.get('description'),
+                          component.decoded('dtstart'),
+                          component.decoded('dtend'),
+                          component.get('location'))
             event_list.append(event)
     file.close()
     return event_list
 
 
 def send_message(bot, chat_id, message):
-    if verbose:
-        logger.info("Sending message to " + str(chat_id) + ": \n\t" + message)
+    logger.debug("Sending message to chatid %d with message: \n\t%s ", chat_id, message)
     bot.send_message(chat_id=chat_id,
                      text=message,
                      parse_mode=telegram.ParseMode.MARKDOWN)
@@ -92,8 +111,7 @@ def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
                     new_events.append(event)
 
     if len(new_events) != 0:
-        if verbose:
-            logger.info("Got new event(s): " + "\n\t".join(map(lambda x: x.summary, new_events)))
+        logger.debug("Got new event(s): " + "\n\t".join(map(lambda x: x.summary, new_events)))
         message = ''
         for event in new_events:
             message += event.to_string()
@@ -125,26 +143,23 @@ def callback_minute(bot, job):
 def abo(bot, update, remove=False):
     with open(chat_ids_file_name, 'r') as file:
         lines = [str(line).replace('\n', '') for line in file]
-    if str(update.effective_chat.id) in lines and not remove:
-        if verbose:
-            logger.info(str(update.effective_chat.id) + ", " + update.effective_user.username
-                        + " tried to do an abo, but was already receiving notifications")
+    chat_id = str(update.effective_chat.id)
+    if chat_id in lines and not remove:
+        logger.debug("%s, %s tried to do an abo, but was already receiving notifications", chat_id,
+                     update.effective_user.username)
         send_message(bot, update.message.chat_id, 'Du hast die automatische Kalenderbenachrichtigung bereits abonniert')
-    elif str(update.effective_chat.id) not in lines and remove:
-        if verbose:
-            logger.info(str(update.effective_chat.id) + ", " + update.effective_user.username
-                        + " tried to do a deabo, but was not receiving notifications")
+    elif chat_id not in lines and remove:
+        logger.debug("%s, %s tried to do a deabo, but was not receiving notifications", chat_id,
+                     update.effective_user.username)
         send_message(bot, update.message.chat_id,
                      'Du hattest die automatische Kalenderbenachrichtigung nicht abonniert')
     else:
         if remove:
-            if verbose:
-                logger.info(str(update.effective_chat.id) + ", " + update.effective_user.username + " did a deabo")
-            lines.remove(str(update.effective_chat.id))
+            logger.debug(chat_id + ", " + update.effective_user.username + " did a deabo")
+            lines.remove(chat_id)
         else:
-            if verbose:
-                logger.info(str(update.effective_chat.id) + ", " + update.effective_user.username + " did a abo")
-            lines.append(str(update.effective_chat.id))
+            logger.debug(chat_id + ", " + update.effective_user.username + " did a abo")
+            lines.append(chat_id)
 
         with open(chat_ids_file_name, 'w') as chat_file:
             chat_file.write("\n".join(lines))

@@ -28,6 +28,9 @@ if __name__ == "__main__":
             content = '''telegram_token = ''\n'''
             file.write(content.encode("utf-8"))
 
+    if not os.path.exists("logs"):
+        os.makedirs("logs")
+
     setup(
         name="calendar_bot",
         packages=[],
@@ -41,7 +44,9 @@ if __name__ == "__main__":
             'python-telegram-bot',
             'python-redmine',
             'icalendar',
-            'requests', 'pytz'
+            'requests',
+            'pytz',
+            'PyYAML'
         ],
         version=version,
         description="",
