@@ -124,23 +124,23 @@ def abo(bot, update, remove=False):
         lines = [str(line).replace('\n', '') for line in file]
     if str(update.effective_chat.id) in lines and not remove:
         if verbose:
-            logger.debug(update.effective_chat.id + ", " + update.effective_user.username
+            logger.debug(str(update.effective_chat.id) + ", " + update.effective_user.username
                          + " tried to do an abo, but was already receiving notifications")
         send_message(bot, update.message.chat_id, 'Du hast die automatische Kalenderbenachrichtigung bereits abonniert')
     elif str(update.effective_chat.id) not in lines and remove:
         if verbose:
-            logger.debug(update.effective_chat.id + ", " + update.effective_user.username
+            logger.debug(str(update.effective_chat.id) + ", " + update.effective_user.username
                          + " tried to do a deabo, but was not receiving notifications")
         send_message(bot, update.message.chat_id,
                      'Du hattest die automatische Kalenderbenachrichtigung nicht abonniert')
     else:
         if remove:
             if verbose:
-                logger.debug(update.effective_chat.id + ", " + update.effective_user.username + " did a deabo")
+                logger.debug(str(update.effective_chat.id) + ", " + update.effective_user.username + " did a deabo")
             lines.remove(str(update.effective_chat.id))
         else:
             if verbose:
-                logger.debug(update.effective_chat.id + ", " + update.effective_user.username + " did a abo")
+                logger.debug(str(update.effective_chat.id) + ", " + update.effective_user.username + " did a abo")
             lines.append(str(update.effective_chat.id))
 
         with open(chat_ids_file_name, 'w') as chat_file:
