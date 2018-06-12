@@ -13,7 +13,9 @@ from public_config import cal_url, check_interval, cal_file_name_new, cal_file_n
     chat_ids_file_name
 
 # Enable logging
-
+level = logging.INFO
+if verbose:
+    level = logging.DEBUG
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
