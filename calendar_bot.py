@@ -99,11 +99,14 @@ def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
             message += event.to_string()
 
         send_message(bot, chat_id, message)
-        with open(cal_file_name_new, 'r') as new_events_file:
-            with open(cal_file_name, 'w+') as current_events_file:
-                current_events_file.writelines(new_events_file)
     elif not silent:
         send_message(bot, chat_id, 'Keine neuen Events verfügbar')
+
+
+def overwrite_ics_file():
+    with open(cal_file_name_new, 'r') as new_events_file:
+        with open(cal_file_name, 'w+') as current_events_file:
+            current_events_file.writelines(new_events_file)
 
 
 def events(bot, update):
@@ -116,6 +119,7 @@ def callback_minute(bot, job):
     chat_ids_file.close()
     for line in lines:
         print_events_to_bot_diff(bot, int(line))
+    overwrite_ics_file()
 
 
 def abo(bot, update, remove=False):
