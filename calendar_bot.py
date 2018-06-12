@@ -65,7 +65,7 @@ def create_event_list(file_name):
 
 def send_message(bot, chat_id, message):
     if verbose:
-        logger.debug("Sending message to " + chat_id + ": \n\t" + message)
+        logger.debug("Sending message to " + str(chat_id) + ": \n\t" + message)
     bot.send_message(chat_id=chat_id,
                      text=message,
                      parse_mode=telegram.ParseMode.MARKDOWN)
