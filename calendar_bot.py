@@ -13,11 +13,8 @@ from public_config import cal_url, check_interval, cal_file_name_new, cal_file_n
     chat_ids_file_name
 
 # Enable logging
-level = logging.INFO
-if verbose:
-    level = logging.DEBUG
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=level)
+                    level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -67,7 +64,7 @@ def create_event_list(file_name):
 
 def send_message(bot, chat_id, message):
     if verbose:
-        logger.debug("Sending message to " + str(chat_id) + ": \n\t" + message)
+        logger.info("Sending message to " + str(chat_id) + ": \n\t" + message)
     bot.send_message(chat_id=chat_id,
                      text=message,
                      parse_mode=telegram.ParseMode.MARKDOWN)
@@ -96,7 +93,7 @@ def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
 
     if len(new_events) != 0:
         if verbose:
-            logger.debug("Got new event(s): " + "\n\t".join(map(lambda x: x.summary, new_events)))
+            logger.info("Got new event(s): " + "\n\t".join(map(lambda x: x.summary, new_events)))
         message = ''
         for event in new_events:
             message += event.to_string()
@@ -126,23 +123,23 @@ def abo(bot, update, remove=False):
         lines = [str(line).replace('\n', '') for line in file]
     if str(update.effective_chat.id) in lines and not remove:
         if verbose:
-            logger.debug(str(update.effective_chat.id) + ", " + update.effective_user.username
-                         + " tried to do an abo, but was already receiving notifications")
+            logger.info(str(update.effective_chat.id) + ", " + update.effective_user.username
+                        + " tried to do an abo, but was already receiving notifications")
         send_message(bot, update.message.chat_id, 'Du hast die automatische Kalenderbenachrichtigung bereits abonniert')
     elif str(update.effective_chat.id) not in lines and remove:
         if verbose:
-            logger.debug(str(update.effective_chat.id) + ", " + update.effective_user.username
-                         + " tried to do a deabo, but was not receiving notifications")
+            logger.info(str(update.effective_chat.id) + ", " + update.effective_user.username
+                        + " tried to do a deabo, but was not receiving notifications")
         send_message(bot, update.message.chat_id,
                      'Du hattest die automatische Kalenderbenachrichtigung nicht abonniert')
     else:
         if remove:
             if verbose:
-                logger.debug(str(update.effective_chat.id) + ", " + update.effective_user.username + " did a deabo")
+                logger.info(str(update.effective_chat.id) + ", " + update.effective_user.username + " did a deabo")
             lines.remove(str(update.effective_chat.id))
         else:
             if verbose:
-                logger.debug(str(update.effective_chat.id) + ", " + update.effective_user.username + " did a abo")
+                logger.info(str(update.effective_chat.id) + ", " + update.effective_user.username + " did a abo")
             lines.append(str(update.effective_chat.id))
 
         with open(chat_ids_file_name, 'w') as chat_file:
