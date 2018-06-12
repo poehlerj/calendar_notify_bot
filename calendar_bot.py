@@ -17,7 +17,7 @@ level = logging.INFO
 if verbose:
     level = logging.DEBUG
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
+                    level=level)
 logger = logging.getLogger(__name__)
 
 
