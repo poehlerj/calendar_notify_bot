@@ -57,24 +57,24 @@ class Event:
 
     def to_string(self):
         out = _('*Appointment*\n')
-        out = out + _('\t_Eventsummary_: {summary}\n').format(summary=self.summary)
+        out = out + '\t_{text}_: {summary}\n'.format(text=_('Eventsummary'), summary=self.summary)
         if str_not_empty(self.description):
-            out = out + _('\t__Description__: {description}\n').format(description=self.description)
+            out = out + '\t_{text}_: {description}\n'.format(text=_('Description'), description=self.description)
 
-        out = out + _('\t_Begin_: ')
+        out = out + '\t_{text}_: '.format(text=_('Begin'))
         if isinstance(self.time_start, datetime.datetime):
             out += self.time_start.strftime('%H:%M ' + _("on") + ' %d. %m. %Y\n')
         else:
             out += self.time_start.strftime('%d. %m. %Y\n')
 
-        out = out + _('\t_End_: ')
+        out = out + '\t_{text}_: '.format(text=_('End'))
         if isinstance(self.time_end, datetime.datetime):
             out += self.time_end.strftime('%H:%M ' + _("on") + ' %d. %m. %Y\n')
         else:
             out += self.time_end.strftime('%d. %m. %Y\n')
 
         if str_not_empty(self.location):
-            out = out + _('\t_Location_: {location}\n').format(location=self.location)
+            out = out + '\t_{text{_: {location}\n'.format(text=_('Location'), location=self.location)
         return out + '\n'
 
 
@@ -216,6 +216,7 @@ def main():
     dp.add_handler(CommandHandler(_('sub'), abo))
     dp.add_handler(CommandHandler(_('unsub'), de_abo))
     dp.add_handler(CommandHandler(_('help'), print_help))
+    dp.add_handler(CommandHandler(_('start'), print_help))
 
     j = updater.job_queue
     j.run_repeating(callback_minute, interval=check_interval, first=0)

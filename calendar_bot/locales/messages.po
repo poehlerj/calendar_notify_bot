@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calendar_bot 1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-06-13 16:40+0200\n"
+"POT-Creation-Date: 2018-06-13 16:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,15 +23,15 @@ msgid "*Appointment*\n"
 msgstr ""
 
 #: calendar_bot/calendar_bot.py:60
-msgid "\t_Eventsummary_: {summary}\n"
+msgid "Eventsummary"
 msgstr ""
 
 #: calendar_bot/calendar_bot.py:62
-msgid "\t__Description__: {description}\n"
+msgid "Description"
 msgstr ""
 
 #: calendar_bot/calendar_bot.py:64
-msgid "\t_Begin_: "
+msgid "Begin"
 msgstr ""
 
 #: calendar_bot/calendar_bot.py:66 calendar_bot/calendar_bot.py:72
@@ -39,11 +39,11 @@ msgid "on"
 msgstr ""
 
 #: calendar_bot/calendar_bot.py:70
-msgid "\t_End_: "
+msgid "End"
 msgstr ""
 
 #: calendar_bot/calendar_bot.py:77
-msgid "\t_Location_: {location}\n"
+msgid "Location"
 msgstr ""
 
 #: calendar_bot/calendar_bot.py:144
@@ -104,5 +104,9 @@ msgstr ""
 
 #: calendar_bot/calendar_bot.py:207 calendar_bot/calendar_bot.py:218
 msgid "help"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:219
+msgid "start"
 msgstr ""
 

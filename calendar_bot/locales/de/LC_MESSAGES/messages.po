@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calendar_bot 1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-06-13 16:40+0200\n"
+"POT-Creation-Date: 2018-06-13 16:49+0200\n"
 "PO-Revision-Date: 2018-06-13 15:08+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: de\n"
@@ -24,32 +24,28 @@ msgid "*Appointment*\n"
 msgstr "*Termin*\n"
 
 #: calendar_bot/calendar_bot.py:60
-#, fuzzy
-msgid "\t_Eventsummary_: {summary}\n"
-msgstr "\t__Veranstaltungsbezeichnung__: {summary}\n"
+msgid "Eventsummary"
+msgstr "Veranstaltungsbezeichnung"
 
 #: calendar_bot/calendar_bot.py:62
-msgid "\t__Description__: {description}\n"
-msgstr "\t__Beschreibung__: {description}\n"
+msgid "Description"
+msgstr "Beschreibung"
 
 #: calendar_bot/calendar_bot.py:64
-#, fuzzy
-msgid "\t_Begin_: "
-msgstr "\t__Start__: "
+msgid "Begin"
+msgstr "Start"
 
 #: calendar_bot/calendar_bot.py:66 calendar_bot/calendar_bot.py:72
 msgid "on"
 msgstr "am"
 
 #: calendar_bot/calendar_bot.py:70
-#, fuzzy
-msgid "\t_End_: "
-msgstr "\t__Ende__: "
+msgid "End"
+msgstr "Ende"
 
 #: calendar_bot/calendar_bot.py:77
-#, fuzzy
-msgid "\t_Location_: {location}\n"
-msgstr "\t__Ort__: {location}\n"
+msgid "Location"
+msgstr "Ort"
 
 #: calendar_bot/calendar_bot.py:144
 msgid "No new events available"
@@ -75,7 +71,7 @@ msgstr "Du wirst nun benachrichtigt, wenn neue Kalendereinträge hinzukommen"
 
 #: calendar_bot/calendar_bot.py:201
 msgid "You can state the following commands:\n"
-msgstr "Du kannst einen der folgenden Commandos absetzen:\n"
+msgstr "Du kannst einen der folgenden Kommandos absetzen:\n"
 
 #: calendar_bot/calendar_bot.py:202
 msgid ""
@@ -95,7 +91,7 @@ msgid ""
 "you, when a new event has been added\n"
 msgstr ""
 "\t*{sub}* aktiviert die Benachrichtigungsfunktion. Ich werde dich dann "
-"benachrichtigen, wenn eine neue Veranstaltung erstellt wurde"
+"benachrichtigen, wenn eine neue Veranstaltung erstellt wurde\n"
 
 #: calendar_bot/calendar_bot.py:205 calendar_bot/calendar_bot.py:216
 msgid "sub"
@@ -103,7 +99,7 @@ msgstr "abo"
 
 #: calendar_bot/calendar_bot.py:206
 msgid "\t*{unsub}* unsubscribes you from the notification system\n"
-msgstr "\t*{unsub}* dabonniert die automatische Kalenderbenachrichtigung"
+msgstr "\t*{unsub}* deabonniert die automatische Kalenderbenachrichtigung\n"
 
 #: calendar_bot/calendar_bot.py:206 calendar_bot/calendar_bot.py:217
 msgid "unsub"
@@ -111,9 +107,12 @@ msgstr "deabo"
 
 #: calendar_bot/calendar_bot.py:207
 msgid "\t*{help}* prints this helping text\n"
-msgstr "\t*{help}* zeigt dir diesen hilfreichen Text an"
+msgstr "\t*{help}* zeigt dir diesen hilfreichen Text an\n"
 
 #: calendar_bot/calendar_bot.py:207 calendar_bot/calendar_bot.py:218
 msgid "help"
 msgstr "hilfe"
 
+#: calendar_bot/calendar_bot.py:219
+msgid "start"
+msgstr "start"
