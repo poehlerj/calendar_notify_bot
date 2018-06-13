@@ -3,3 +3,4 @@ fs_calendar.ics*
 *_config.py
 venv/
 .idea/
+logs/
