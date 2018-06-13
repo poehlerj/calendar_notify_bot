@@ -74,7 +74,7 @@ class Event:
             out += self.time_end.strftime('%d. %m. %Y\n')
 
         if str_not_empty(self.location):
-            out = out + '\t_{text{_: {location}\n'.format(text=_('Location'), location=self.location)
+            out = out + '\t_{text}_: {location}\n'.format(text=_('Location'), location=self.location)
         return out + '\n'
 
 
