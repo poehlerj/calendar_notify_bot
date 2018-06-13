@@ -17,13 +17,13 @@ if __name__ == "__main__":
 
     if not os.path.exists("public_config.py"):
         with open("default_public_config.py", "rb") as input:
-            with open("calendar_bot/public_config.py", "wb+") as file:
+            with open("public_config.py", "wb+") as file:
                 file.write(input.read())
 
     if not os.path.exists("private_config.py"):
-        with open("private_config.py", "wb+") as file:
+        with open("private_config.py", "w+") as file:
             content = '''telegram_token = ''\n'''
-            file.write(content.encode("utf-8"))
+            file.write(content)
 
     if not os.path.exists("logs"):
         os.makedirs("logs")

@@ -11,8 +11,8 @@ import gettext
 from icalendar import Calendar
 from telegram.ext import Updater, CommandHandler
 
-from calendar_bot.private_config import telegram_token
-from calendar_bot.public_config import cal_url, check_interval, cal_file_name_new, cal_file_name, server_timezone, \
+from private_config import telegram_token
+from public_config import cal_url, check_interval, cal_file_name_new, cal_file_name, server_timezone, \
     chat_ids_file_name, server_language
 
 if server_language is not None:
@@ -80,6 +80,8 @@ class Event:
 
 def create_event_list(file_name):
     event_list = []
+    if not os.path.exists(file_name):
+        return None
     file = open(file_name, 'rb')
     cal = Calendar.from_ical(file.read())
     for component in cal.walk():
@@ -102,6 +104,10 @@ def send_message(bot, chat_id, message):
 
 
 def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
+    if not os.path.exists(cal_file_name_new):
+        with open(cal_file_name_new, 'wb+') as file:
+            pass
+
     if os.stat(cal_file_name_new).st_mtime > check_interval:
         r = requests.get(cal_url, allow_redirects=True)
         with open(cal_file_name_new, 'wb+') as file:
@@ -113,7 +119,10 @@ def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
     new_events = []
 
     for event in current_events:
-        summary_list = map(lambda x: x.summary, old_events)
+        if old_events is not None:
+            summary_list = map(lambda x: x.summary, old_events)
+        else:
+            summary_list = []
         if event.summary not in summary_list or return_all:
             if isinstance(event.time_start, datetime.datetime):
                 if event.time_start > datetime.datetime.now(pytz.timezone(server_timezone)):
@@ -122,7 +131,7 @@ def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
                 if event.time_start > datetime.date.today():
                     new_events.append(event)
 
-    new_events = sorted(new_events, key=lambda x: x.time_start)
+    new_events = sorted(new_events, key=lambda x: datetime.datetime.combine(x.time_start, datetime.datetime.min.time()))
 
     if len(new_events) != 0:
         logger.debug("Got new event(s): " + "\n\t".join(map(lambda x: x.summary, new_events)))
