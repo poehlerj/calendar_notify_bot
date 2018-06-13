@@ -35,6 +35,10 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 
+def str_not_empty(input):
+    return input is not None and input != ''
+
+
 class Event:
     def __init__(self, summary, description, time_start, time_end, location):
         self.summary = summary
@@ -46,7 +50,7 @@ class Event:
     def to_string(self):
         out = '*Termin*\n'
         out = out + '\t__Veranstaltungsbezeichnung__: ' + self.summary + '\n'
-        if self.description is not None:
+        if str_not_empty(self.description):
             out = out + '\t__Beschreibung__: ' + self.description + '\n'
 
         out = out + '\t__Start__: '
@@ -61,7 +65,7 @@ class Event:
         else:
             out += self.time_end.strftime('%d. %m. %Y\n')
 
-        if self.location is not None:
+        if str_not_empty(self.location):
             out = out + '\t__Ort__: ' + self.location + '\n'
         return out + '\n'
 
@@ -109,6 +113,8 @@ def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
             else:
                 if event.time_start > datetime.date.today():
                     new_events.append(event)
+
+    new_events = sorted(new_events, key=lambda x: x.time_start)
 
     if len(new_events) != 0:
         logger.debug("Got new event(s): " + "\n\t".join(map(lambda x: x.summary, new_events)))
