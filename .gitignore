@@ -5,3 +5,6 @@ chat_ids.txt
 venv/
 .idea/
 logs/
+*__pycache__*
+*.egg-info/
+dist/

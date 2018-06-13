@@ -57,24 +57,24 @@ class Event:
 
     def to_string(self):
         out = _('*Appointment*\n')
-        out = out + _('\t__Eventsummary__: {summary}\n').format(summary=self.summary)
+        out = out + _('\t_Eventsummary_: {summary}\n').format(summary=self.summary)
         if str_not_empty(self.description):
             out = out + _('\t__Description__: {description}\n').format(description=self.description)
 
-        out = out + _('\t__Begin__: ')
+        out = out + _('\t_Begin_: ')
         if isinstance(self.time_start, datetime.datetime):
-            out += self.time_start.strftime('%H:%M on %d. %m. %Y\n')
+            out += self.time_start.strftime('%H:%M ' + _("on") + ' %d. %m. %Y\n')
         else:
             out += self.time_start.strftime('%d. %m. %Y\n')
 
-        out = out + _('\t__End__: ')
+        out = out + _('\t_End_: ')
         if isinstance(self.time_end, datetime.datetime):
-            out += self.time_end.strftime('%H:%M on %d. %m. %Y\n')
+            out += self.time_end.strftime('%H:%M ' + _("on") + ' %d. %m. %Y\n')
         else:
             out += self.time_end.strftime('%d. %m. %Y\n')
 
         if str_not_empty(self.location):
-            out = out + _('\t__Location__: {location}\n').format(location=self.location)
+            out = out + _('\t_Location_: {location}\n').format(location=self.location)
         return out + '\n'
 
 
@@ -197,12 +197,25 @@ def de_abo(bot, update):
     abo(bot, update, True)
 
 
+def print_help(bot, update):
+    help_message = _('You can state the following commands:\n') \
+                   + _('\t*{appointments}* gives you all the upcoming events in a list sorted '
+                       'chronologically\n').format(appointments=_('appointments')) \
+                   + _('\t*{sub}* subscribes yourself to the notification system. I will notify you, when a new event '
+                       'has been added\n').format(sub=_('sub')) \
+                   + _('\t*{unsub}* unsubscribes you from the notification system\n').format(unsub=_('unsub')) \
+                   + _('\t*{help}* prints this helping text\n').format(help=_('help'))
+    send_message(bot, update.message.chat_id, help_message)
+    pass
+
+
 def main():
     updater = Updater(telegram_token)
     dp = updater.dispatcher
     dp.add_handler(CommandHandler(_('appointments'), events))
     dp.add_handler(CommandHandler(_('sub'), abo))
     dp.add_handler(CommandHandler(_('unsub'), de_abo))
+    dp.add_handler(CommandHandler(_('help'), print_help))
 
     j = updater.job_queue
     j.run_repeating(callback_minute, interval=check_interval, first=0)

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calendar_bot 1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-06-13 14:47+0200\n"
+"POT-Creation-Date: 2018-06-13 16:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,59 +18,91 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
 
-#: calendar_bot/calendar_bot.py:56
+#: calendar_bot/calendar_bot.py:59
 msgid "*Appointment*\n"
 msgstr ""
 
-#: calendar_bot/calendar_bot.py:57
-msgid "\t__Eventsummary__: {summary}\n"
+#: calendar_bot/calendar_bot.py:60
+msgid "\t_Eventsummary_: {summary}\n"
 msgstr ""
 
-#: calendar_bot/calendar_bot.py:59
+#: calendar_bot/calendar_bot.py:62
 msgid "\t__Description__: {description}\n"
 msgstr ""
 
-#: calendar_bot/calendar_bot.py:61
-msgid "\t__Begin__: "
+#: calendar_bot/calendar_bot.py:64
+msgid "\t_Begin_: "
 msgstr ""
 
-#: calendar_bot/calendar_bot.py:67
-msgid "\t__End__: "
+#: calendar_bot/calendar_bot.py:66 calendar_bot/calendar_bot.py:72
+msgid "on"
 msgstr ""
 
-#: calendar_bot/calendar_bot.py:74
-msgid "\t__Location__: {location}\n"
+#: calendar_bot/calendar_bot.py:70
+msgid "\t_End_: "
 msgstr ""
 
-#: calendar_bot/calendar_bot.py:132
+#: calendar_bot/calendar_bot.py:77
+msgid "\t_Location_: {location}\n"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:144
 msgid "No new events available"
 msgstr ""
 
-#: calendar_bot/calendar_bot.py:161
+#: calendar_bot/calendar_bot.py:173
 msgid "You were already subscribed to the event notification system"
 msgstr ""
 
-#: calendar_bot/calendar_bot.py:165
+#: calendar_bot/calendar_bot.py:177
 msgid "You weren't subscribed to the event notification system"
 msgstr ""
 
-#: calendar_bot/calendar_bot.py:178
+#: calendar_bot/calendar_bot.py:190
 msgid "You will not get notified, when a new event has been added, anymore"
 msgstr ""
 
-#: calendar_bot/calendar_bot.py:181
+#: calendar_bot/calendar_bot.py:193
 msgid "You wil get notified, when a new event has been added."
 msgstr ""
 
-#: calendar_bot/calendar_bot.py:191
+#: calendar_bot/calendar_bot.py:201
+msgid "You can state the following commands:\n"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:202
+msgid ""
+"\t*{appointments}* gives you all the upcoming events in a list sorted "
+"chronologically\n"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:203 calendar_bot/calendar_bot.py:215
 msgid "appointments"
 msgstr ""
 
-#: calendar_bot/calendar_bot.py:192
+#: calendar_bot/calendar_bot.py:204
+msgid ""
+"\t*{sub}* subscribes yourself to the notification system. I will notify "
+"you, when a new event has been added\n"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:205 calendar_bot/calendar_bot.py:216
 msgid "sub"
 msgstr ""
 
-#: calendar_bot/calendar_bot.py:193
+#: calendar_bot/calendar_bot.py:206
+msgid "\t*{unsub}* unsubscribes you from the notification system\n"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:206 calendar_bot/calendar_bot.py:217
 msgid "unsub"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:207
+msgid "\t*{help}* prints this helping text\n"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:207 calendar_bot/calendar_bot.py:218
+msgid "help"
 msgstr ""
 
