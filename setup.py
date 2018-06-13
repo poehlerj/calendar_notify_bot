@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     if not os.path.exists("public_config.py"):
         with open("default_public_config.py", "rb") as input:
-            with open("public_config.py", "wb+") as file:
+            with open("calendar_bot/public_config.py", "wb+") as file:
                 file.write(input.read())
 
     if not os.path.exists("private_config.py"):

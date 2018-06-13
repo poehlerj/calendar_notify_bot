@@ -11,8 +11,8 @@ import gettext
 from icalendar import Calendar
 from telegram.ext import Updater, CommandHandler
 
-from private_config import telegram_token
-from public_config import cal_url, check_interval, cal_file_name_new, cal_file_name, server_timezone, \
+from calendar_bot.private_config import telegram_token
+from calendar_bot.public_config import cal_url, check_interval, cal_file_name_new, cal_file_name, server_timezone, \
     chat_ids_file_name, server_language
 
 if server_language is not None:
