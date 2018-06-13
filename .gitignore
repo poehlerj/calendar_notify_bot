@@ -1,6 +1,7 @@
 chat_ids.txt
 fs_calendar.ics*
 *_config.py
+!default_public_config.py
 venv/
 .idea/
 logs/

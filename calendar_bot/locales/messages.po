@@ -1,0 +1,76 @@
+# Translations template for calendar_bot.
+# Copyright (C) 2018 ORGANIZATION
+# This file is distributed under the same license as the calendar_bot
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: calendar_bot 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2018-06-13 14:47+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: calendar_bot/calendar_bot.py:56
+msgid "*Appointment*\n"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:57
+msgid "\t__Eventsummary__: {summary}\n"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:59
+msgid "\t__Description__: {description}\n"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:61
+msgid "\t__Begin__: "
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:67
+msgid "\t__End__: "
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:74
+msgid "\t__Location__: {location}\n"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:132
+msgid "No new events available"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:161
+msgid "You were already subscribed to the event notification system"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:165
+msgid "You weren't subscribed to the event notification system"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:178
+msgid "You will not get notified, when a new event has been added, anymore"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:181
+msgid "You wil get notified, when a new event has been added."
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:191
+msgid "appointments"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:192
+msgid "sub"
+msgstr ""
+
+#: calendar_bot/calendar_bot.py:193
+msgid "unsub"
+msgstr ""
+

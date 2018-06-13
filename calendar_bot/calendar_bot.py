@@ -7,11 +7,19 @@ import pytz
 import requests
 import telegram
 import yaml
+import gettext
 from icalendar import Calendar
 from telegram.ext import Updater, CommandHandler
 
 from private_config import telegram_token
-from public_config import cal_url, check_interval, cal_file_name_new, cal_file_name, server_timezone, chat_ids_file_name
+from public_config import cal_url, check_interval, cal_file_name_new, cal_file_name, server_timezone, \
+    chat_ids_file_name, server_language
+
+if server_language is not None:
+    os.environ['LANGUAGE'] = server_language
+localedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locales')
+translate = gettext.translation('messages', localedir, fallback=True)
+_ = translate.gettext
 
 
 def setup_logging(default_path='logging.yaml', default_level=logging.INFO, env_key='LOG_CFG'):
@@ -48,25 +56,25 @@ class Event:
         self.location = location
 
     def to_string(self):
-        out = '*Termin*\n'
-        out = out + '\t__Veranstaltungsbezeichnung__: ' + self.summary + '\n'
+        out = _('*Appointment*\n')
+        out = out + _('\t__Eventsummary__: {summary}\n').format(summary=self.summary)
         if str_not_empty(self.description):
-            out = out + '\t__Beschreibung__: ' + self.description + '\n'
+            out = out + _('\t__Description__: {description}\n').format(description=self.description)
 
-        out = out + '\t__Start__: '
+        out = out + _('\t__Begin__: ')
         if isinstance(self.time_start, datetime.datetime):
             out += self.time_start.strftime('%H:%M on %d. %m. %Y\n')
         else:
             out += self.time_start.strftime('%d. %m. %Y\n')
 
-        out = out + '\t__Ende__: '
+        out = out + _('\t__End__: ')
         if isinstance(self.time_end, datetime.datetime):
             out += self.time_end.strftime('%H:%M on %d. %m. %Y\n')
         else:
             out += self.time_end.strftime('%d. %m. %Y\n')
 
         if str_not_empty(self.location):
-            out = out + '\t__Ort__: ' + self.location + '\n'
+            out = out + _('\t__Location__: {location}\n').format(location=self.location)
         return out + '\n'
 
 
@@ -124,7 +132,7 @@ def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
 
         send_message(bot, chat_id, message)
     elif not silent:
-        send_message(bot, chat_id, 'Keine neuen Events verfügbar')
+        send_message(bot, chat_id, _('No new events available'))
 
 
 def overwrite_ics_file():
@@ -153,12 +161,11 @@ def abo(bot, update, remove=False):
     if chat_id in lines and not remove:
         logger.debug("%s, %s tried to do an abo, but was already receiving notifications", chat_id,
                      update.effective_user.username)
-        send_message(bot, update.message.chat_id, 'Du hast die automatische Kalenderbenachrichtigung bereits abonniert')
+        send_message(bot, update.message.chat_id, _('You were already subscribed to the event notification system'))
     elif chat_id not in lines and remove:
         logger.debug("%s, %s tried to do a deabo, but was not receiving notifications", chat_id,
                      update.effective_user.username)
-        send_message(bot, update.message.chat_id,
-                     'Du hattest die automatische Kalenderbenachrichtigung nicht abonniert')
+        send_message(bot, update.message.chat_id, _('''You weren't subscribed to the event notification system'''))
     else:
         if remove:
             logger.debug(chat_id + ", " + update.effective_user.username + " did a deabo")
@@ -171,10 +178,10 @@ def abo(bot, update, remove=False):
             chat_file.write("\n".join(lines))
         if remove:
             send_message(bot, update.message.chat_id,
-                         'Du wirst nun nicht mehr benachrichtigt, wenn eine neuer Kalendereintrag hinzukommt')
+                         _('You will not get notified, when a new event has been added, anymore'))
         else:
             send_message(bot, update.message.chat_id,
-                         'Du wirst nun benachrichtigt, wenn neue Kalendereinträge hinzukommen')
+                         _('You wil get notified, when a new event has been added.'))
 
 
 def de_abo(bot, update):
@@ -184,9 +191,9 @@ def de_abo(bot, update):
 def main():
     updater = Updater(telegram_token)
     dp = updater.dispatcher
-    dp.add_handler(CommandHandler('termine', events))
-    dp.add_handler(CommandHandler('abo', abo))
-    dp.add_handler(CommandHandler('deabo', de_abo))
+    dp.add_handler(CommandHandler(_('appointments'), events))
+    dp.add_handler(CommandHandler(_('sub'), abo))
+    dp.add_handler(CommandHandler(_('unsub'), de_abo))
 
     j = updater.job_queue
     j.run_repeating(callback_minute, interval=check_interval, first=0)
