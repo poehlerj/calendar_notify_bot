@@ -15,13 +15,13 @@ if __name__ == "__main__":
     with open("README.md", "rb") as file:
         long_descr = file.read().decode("utf-8")
 
-    if not os.path.exists("public_config.py"):
+    if not os.path.exists("calendar_bot/public_config.py"):
         with open("default_public_config.py", "rb") as input:
-            with open("public_config.py", "wb+") as file:
+            with open("calendar_bot/public_config.py", "wb+") as file:
                 file.write(input.read())
 
-    if not os.path.exists("private_config.py"):
-        with open("private_config.py", "w+") as file:
+    if not os.path.exists("calendar_bot/private_config.py"):
+        with open("calendar_bot/private_config.py", "w+") as file:
             content = '''telegram_token = ''\n'''
             file.write(content)
 
