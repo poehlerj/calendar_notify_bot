@@ -98,12 +98,9 @@ msgid "appointments"
 msgstr "termine"
 
 #: calendar_bot/calendar_bot.py:234
-#, fuzzy
-msgid ""
-"\t*{sub}* subscribes yourself to the notification system. I will notify "
+msgid "\t*{sub}* subscribes yourself to the notification system. I will notify "
 "you, when a new event has been added and when an event is due\n"
-msgstr ""
-"\t*{sub}* aktiviert die Benachrichtigungsfunktion. Ich werde dich dann "
+msgstr "\t*{sub}* aktiviert die Benachrichtigungsfunktion. Ich werde dich dann "
 "benachrichtigen, wenn eine neue Veranstaltung erstellt wurde oder wenn eine Veranstaltung kurz bevor steht\n"
 
 #: calendar_bot/calendar_bot.py:235 calendar_bot/calendar_bot.py:246
