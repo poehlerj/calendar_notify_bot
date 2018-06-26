@@ -10,7 +10,7 @@ import yaml
 import gettext
 from icalendar import Calendar
 from telegram.ext import Updater, CommandHandler
-from telegram.error import BadRequest
+from telegram.error import TelegramError
 
 from private_config import telegram_token
 from public_config import cal_url, check_interval, cal_file_name_new, cal_file_name, server_timezone, \
@@ -103,8 +103,8 @@ def send_message(bot, chat_id, message):
         bot.send_message(chat_id=chat_id,
                          text=message,
                          parse_mode=telegram.ParseMode.MARKDOWN)
-    except BadRequest:
-        logger.info("Was unable to send message to chatid %d.", chat_id)
+    except TelegramError as error:
+        logger.error("Was unable to send message to chatid %d. %s", chat_id, error)
 
 
 def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
@@ -140,6 +140,8 @@ def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
     if len(new_events) != 0:
         logger.debug("Got new event(s): " + "\n\t".join(map(lambda x: x.summary, new_events)))
         message = ''
+        if not return_all:
+            message += '''**%s:**\n\n'''.format(_('I have got new events for you'))
         for event in new_events:
             message += event.to_string()
 
