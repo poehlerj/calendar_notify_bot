@@ -3,7 +3,6 @@
 import os
 import re
 
-from babel.messages import frontend as babel
 from setuptools import setup
 
 if __name__ == "__main__":
@@ -36,12 +35,7 @@ if __name__ == "__main__":
                 "calendar_bot = calendar_bot:main"
             ]
         },
-        cmdclass={'compile_catalog': babel.compile_catalog,
-                  'extract_messages': babel.extract_messages,
-                  'init_catalog': babel.init_catalog,
-                  'update_catalog': babel.update_catalog},
         include_package_data=True,
-        setup_requires=['babel'],
         install_requires=[
             'python-telegram-bot',
             'icalendar',
