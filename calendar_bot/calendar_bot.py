@@ -232,7 +232,7 @@ def print_help(bot, update):
                    + _('\t*{appointments}* gives you all the upcoming events in a list sorted '
                        'chronologically\n').format(appointments=_('appointments')) \
                    + _('\t*{sub}* subscribes yourself to the notification system. I will notify you, when a new event '
-                       'has been added\n').format(sub=_('sub')) \
+                       'has been added and when an event is due\n').format(sub=_('sub')) \
                    + _('\t*{unsub}* unsubscribes you from the notification system\n').format(unsub=_('unsub')) \
                    + _('\t*{help}* prints this helping text\n').format(help=_('help'))
     send_message(bot, update.message.chat_id, help_message)
