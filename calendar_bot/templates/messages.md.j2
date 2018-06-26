@@ -1,0 +1,14 @@
+{% if no_new_events -%}
+    *Keine neuen Veranstaltungen vefügbar*
+
+{% elif new_events -%}
+    *Ich habe neue Veranstaltungen für dich*
+
+{% elif reminder_single -%}
+    *Achtung! Die folgende Veranstaltung steht an:*
+
+{% elif reminder_multiple -%}
+    *Achtung! Die folgenden Veranstaltungen stehen an:*
+{% endif %}
+
+{{ events }}

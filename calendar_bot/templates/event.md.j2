@@ -1,0 +1,15 @@
+*{{ name }}*
+{% if description -%}
+    _{{- description -}}_
+{% endif -%}
+Am {% if is_include_time(start) -%}
+    _{{ start.strftime('%d. %m. %Y') -}}_
+{%- else -%}
+    _{{- start.strftime('%d. %m. %Y um %H:%M') -}}_
+{%- endif %} bis {% if is_include_time(end) -%}
+    _{{- end.strftime('%d. %m. %Y') -}}_
+{%- else -%}
+    _{{- end.strftime('%d. %m. %Y um %H:%M') -}}_
+{%- endif %}
+{% if location -%}_Veranstaltungsort_: {{ location -}}{% endif %}
+{{ nop }}

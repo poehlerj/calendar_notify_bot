@@ -7,20 +7,27 @@ import pytz
 import requests
 import telegram
 import yaml
-import gettext
 from icalendar import Calendar
 from telegram.ext import Updater, CommandHandler
 from telegram.error import TelegramError
+from jinja2 import Environment, PackageLoader, select_autoescape
 
 from private_config import telegram_token
 from public_config import cal_url, check_interval, cal_file_name_new, cal_file_name, server_timezone, \
     chat_ids_file_name, server_language
 
-if server_language is not None:
-    os.environ['LANGUAGE'] = server_language
-localedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locales')
-translate = gettext.translation('messages', localedir, fallback=True)
-_ = translate.gettext
+env = Environment(
+    loader=PackageLoader('calendar_bot', 'templates'),
+    autoescape=select_autoescape(['md']),
+)
+env.globals.update(
+    is_include_time=lambda date_time: date_time.time() == datetime.min.time()
+)
+
+event_template = env.get_template('event.md.j2')
+help_template = env.get_template('help.md.j2')
+sub_unsub_template = env.get_template('sub_unsub.md.j2')
+messages_template = env.get_template('messages.md.j2')
 
 
 def setup_logging(default_path='logging.yaml', default_level=logging.INFO, env_key='LOG_CFG'):
@@ -49,7 +56,7 @@ def str_not_empty(value):
 
 
 def ensure_datetime(value):
-    if isinstance(value, date):
+    if not isinstance(value, datetime):
         value = datetime.combine(value, datetime.min.time())
         value = value.replace(tzinfo=pytz.timezone(server_timezone))
     return value
@@ -64,20 +71,13 @@ class Event:
         self.location = location
 
     def to_string(self):
-        out = _('*Appointment*\n')
-        out += '\t_{text}_: {summary}\n'.format(text=_('Eventsummary'), summary=self.summary)
-        if str_not_empty(self.description):
-            out += '\t_{text}_: {description}\n'.format(text=_('Description'), description=self.description)
-
-        out += '\t_{text}_: '.format(text=_('Begin'))
-        out += self.time_start.strftime('%H:%M ' + _("on") + ' %d. %m. %Y\n')
-
-        out += '\t_{text}_: '.format(text=_('End'))
-        out += self.time_end.strftime('%H:%M ' + _("on") + ' %d. %m. %Y\n')
-
-        if str_not_empty(self.location):
-            out += '\t_{text}_: {location}\n'.format(text=_('Location'), location=self.location)
-        return out + '\n'
+        return event_template.render(
+            name=self.summary,
+            description=self.description,
+            start=self.time_start,
+            end=self.time_end,
+            location=self.location
+        )
 
 
 def create_event_list(file_name):
@@ -134,13 +134,13 @@ def get_events_diff(silent=True, return_all=False):
         logger.debug("Got new event(s): " + "\n\t".join(map(lambda x: x.summary, new_events)))
         message = ''
         if not return_all:
-            message += '''*{message}:*\n\n'''.format(message=_('I have got new events for you'))
+            message += messages_template.render(new_events=True)
         for event in new_events:
             message += event.to_string()
 
         return message
     elif not silent:
-        return _('No new events available')
+        return messages_template.render(no_new_events=True)
     return None
 
 
@@ -159,14 +159,12 @@ def get_remind_message():
             remind_list.append(event)
     len_remind_list = len(remind_list)
     if len_remind_list is not 0:
-        message = ''
         if len_remind_list == 1:
-            message += '''*{message}*\n\n'''.format(message=_('Attention! The following event is coming up'))
+            return messages_template.render(reminder_single=True,
+                                            events="\n".join(map(lambda evt: evt.to_string(), remind_list)))
         elif len_remind_list > 1:
-            message += '''*{message}*\n\n'''.format(message=_('Attention! The following events are coming up'))
-        for event in remind_list:
-            message += event.to_string()
-        return message
+            return messages_template.render(reminder_multiple=True,
+                                            events="\n".join(map(lambda evt: evt.to_string(), remind_list)))
     return None
 
 
@@ -177,7 +175,8 @@ def overwrite_ics_file():
 
 
 def events(bot, update):
-    print_events_to_bot_diff(bot, update.message.chat_id, silent=False, return_all=True)
+    message = get_events_diff(silent=False, return_all=True)
+    send_message(bot, update.effective_chat.id, message)
 
 
 def callback_interval(bot, job):
@@ -193,7 +192,7 @@ def callback_interval(bot, job):
     remind_message = get_remind_message()
     if remind_message is not None:
         for line in lines:
-            send_message(bot, int(line), diff_events)
+            send_message(bot, int(line), remind_message)
 
     overwrite_ics_file()
 
@@ -205,11 +204,11 @@ def abo(bot, update, remove=False):
     if chat_id in lines and not remove:
         logger.debug("%s, %s tried to do an abo, but was already receiving notifications", chat_id,
                      update.effective_user.username)
-        send_message(bot, update.message.chat_id, _('You were already subscribed to the event notification system'))
+        send_message(bot, update.message.chat_id, sub_unsub_template.render(invalid_sub=True))
     elif chat_id not in lines and remove:
         logger.debug("%s, %s tried to do a deabo, but was not receiving notifications", chat_id,
                      update.effective_user.username)
-        send_message(bot, update.message.chat_id, _('''You weren't subscribed to the event notification system'''))
+        send_message(bot, update.message.chat_id, sub_unsub_template.render(invalid_unsub=True))
     else:
         if remove:
             logger.debug("%s , %s did a deabo", chat_id, update.effective_user.username)
@@ -221,11 +220,9 @@ def abo(bot, update, remove=False):
         with open(chat_ids_file_name, 'w') as chat_file:
             chat_file.write("\n".join(lines))
         if remove:
-            send_message(bot, update.message.chat_id,
-                         _('You will not get notified, when a new event has been added, anymore'))
+            send_message(bot, update.message.chat_id, sub_unsub_template.render(unsub=True))
         else:
-            send_message(bot, update.message.chat_id,
-                         _('You wil get notified, when a new event has been added.'))
+            send_message(bot, update.message.chat_id, sub_unsub_template.render(sub=True))
 
 
 def de_abo(bot, update):
@@ -233,13 +230,12 @@ def de_abo(bot, update):
 
 
 def print_help(bot, update):
-    help_message = _('You can state the following commands:\n') \
-                   + _('\t*{appointments}* gives you all the upcoming events in a list sorted '
-                       'chronologically\n').format(appointments=_('appointments')) \
-                   + _('\t*{sub}* subscribes yourself to the notification system. I will notify you, when a new event '
-                       'has been added and when an event is due\n').format(sub=_('sub')) \
-                   + _('\t*{unsub}* unsubscribes you from the notification system\n').format(unsub=_('unsub')) \
-                   + _('\t*{help}* prints this helping text\n').format(help=_('help'))
+    help_message = help_template.render(
+        appointments='termine',
+        sub='abo',
+        unsub='deabo',
+        help='hilfe'
+    )
     send_message(bot, update.message.chat_id, help_message)
     pass
 
@@ -247,11 +243,11 @@ def print_help(bot, update):
 def main():
     updater = Updater(telegram_token)
     dp = updater.dispatcher
-    dp.add_handler(CommandHandler(_('appointments'), events))
-    dp.add_handler(CommandHandler(_('sub'), abo))
-    dp.add_handler(CommandHandler(_('unsub'), de_abo))
-    dp.add_handler(CommandHandler(_('help'), print_help))
-    dp.add_handler(CommandHandler(_('start'), print_help))
+    dp.add_handler(CommandHandler('termine', events))
+    dp.add_handler(CommandHandler('abo', abo))
+    dp.add_handler(CommandHandler('deabo', de_abo))
+    dp.add_handler(CommandHandler('hilfe', print_help))
+    dp.add_handler(CommandHandler('start', print_help))
 
     j = updater.job_queue
     j.run_repeating(callback_interval, interval=check_interval, first=0)

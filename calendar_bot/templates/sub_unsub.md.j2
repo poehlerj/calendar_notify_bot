@@ -1,0 +1,9 @@
+{% if invalid_sub -%}
+    Du hast die automatische Kalenderbenachrichtigung bereits abonniert
+{%- elif invalid_unsub -%}
+    Du hast die automatische Kalenderbenachrichtigung nicht abonniert
+{%- elif unsub -%}
+    Du wirst nun nicht mehr benachrichtigt, wenn eine neuer Kalendereintrag hinzukommt
+{%- else -%}
+    Du wirst nun benachrichtigt, wenn neue Kalendereinträge hinzukommen
+{%- endif %}

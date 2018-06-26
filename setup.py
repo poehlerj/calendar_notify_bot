@@ -47,7 +47,7 @@ if __name__ == "__main__":
             'icalendar',
             'requests',
             'pytz',
-            'PyYAML',
+            'PyYAML', 'jinja2'
         ],
         version=version,
         description="",
