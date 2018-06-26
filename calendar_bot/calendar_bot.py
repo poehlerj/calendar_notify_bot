@@ -108,10 +108,6 @@ def send_message(bot, chat_id, message):
 
 
 def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
-    if not os.path.exists(cal_file_name_new):
-        with open(cal_file_name_new, 'wb+') as file:
-            pass
-
     if os.stat(cal_file_name_new).st_mtime > check_interval:
         r = requests.get(cal_url, allow_redirects=True)
         with open(cal_file_name_new, 'wb+') as file:
@@ -141,13 +137,36 @@ def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
         logger.debug("Got new event(s): " + "\n\t".join(map(lambda x: x.summary, new_events)))
         message = ''
         if not return_all:
-            message += '''**%s:**\n\n'''.format(_('I have got new events for you'))
+            message += '''*{message}:*\n\n'''.format(message=_('I have got new events for you'))
         for event in new_events:
             message += event.to_string()
 
         send_message(bot, chat_id, message)
     elif not silent:
         send_message(bot, chat_id, _('No new events available'))
+
+
+def remind(bot, chat_id):
+    event_list = create_event_list(cal_file_name)
+    remind_list = []
+    now = datetime.datetime.now(pytz.timezone(server_timezone))
+    for event in event_list:
+        if event.time_start < now:
+            pass
+
+        seconds_left = (event.time_start - now).total_seconds()
+        if 120 * 60 + check_interval / 2 > seconds_left > 120 * 60 - check_interval / 2:
+            remind_list.append(event)
+    len_remind_list = len(remind_list)
+    if len_remind_list is not 0:
+        message = ''
+        if len_remind_list == 1:
+            message += '''*{message}*\n\n'''.format(message=_('Attention! The following event is coming up'))
+        elif len_remind_list > 1:
+            message += '''*{message}*\n\n'''.format(message=_('Attention! The following events are coming up'))
+        for event in remind_list:
+            message += event.to_string()
+        send_message(bot, chat_id, message)
 
 
 def overwrite_ics_file():
@@ -160,12 +179,13 @@ def events(bot, update):
     print_events_to_bot_diff(bot, update.message.chat_id, silent=False, return_all=True)
 
 
-def callback_minute(bot, job):
+def callback_interval(bot, job):
     chat_ids_file = open(chat_ids_file_name, 'r')
     lines = [str(line).replace('\n', '') for line in chat_ids_file]
     chat_ids_file.close()
     for line in lines:
         print_events_to_bot_diff(bot, int(line))
+        remind(bot, int(line))
     overwrite_ics_file()
 
 
@@ -225,7 +245,7 @@ def main():
     dp.add_handler(CommandHandler(_('start'), print_help))
 
     j = updater.job_queue
-    j.run_repeating(callback_minute, interval=check_interval, first=0)
+    j.run_repeating(callback_interval, interval=check_interval, first=0)
 
     updater.start_polling()
     updater.idle()
