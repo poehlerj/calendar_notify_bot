@@ -237,7 +237,6 @@ def print_help(bot, update):
         help='hilfe'
     )
     send_message(bot, update.message.chat_id, help_message)
-    pass
 
 
 def main():
