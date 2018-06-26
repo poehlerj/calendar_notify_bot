@@ -98,9 +98,12 @@ def create_event_list(file_name):
 
 def send_message(bot, chat_id, message):
     logger.debug("Sending message to chatid %d with message: \n\t%s ", chat_id, message)
-    bot.send_message(chat_id=chat_id,
-                     text=message,
-                     parse_mode=telegram.ParseMode.MARKDOWN)
+    try:
+        bot.send_message(chat_id=chat_id,
+                         text=message,
+                         parse_mode=telegram.ParseMode.MARKDOWN)
+    except BadRequest:
+        logger.info("Was unable to send message to chatid %d.", chat_id)
 
 
 def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
