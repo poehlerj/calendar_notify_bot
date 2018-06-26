@@ -153,8 +153,8 @@ def remind(bot, chat_id):
     for event in event_list:
         start_time = event.time_start
         if isinstance(start_time, datetime.date):
-            start_time = datetime.datetime.combine(start_time, datetime.datetime.min.time(),
-                                                   pytz.timezone(server_timezone))
+            start_time = datetime.datetime.combine(start_time, datetime.datetime.min.time())
+            start_time = start_time.replace(tzinfo=pytz.timezone(server_timezone))
         if start_time < now:
             pass
 
