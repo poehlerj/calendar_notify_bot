@@ -10,6 +10,7 @@ import yaml
 import gettext
 from icalendar import Calendar
 from telegram.ext import Updater, CommandHandler
+from telegram.error import BadRequest
 
 from private_config import telegram_token
 from public_config import cal_url, check_interval, cal_file_name_new, cal_file_name, server_timezone, \
