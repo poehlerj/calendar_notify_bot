@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, date
 import logging
 import logging.config
 import os
@@ -44,38 +44,39 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 
-def str_not_empty(input):
-    return input is not None and input != ''
+def str_not_empty(value):
+    return value is not None and value != ''
+
+
+def ensure_datetime(value):
+    if isinstance(value, date):
+        value = datetime.combine(value, datetime.min.time())
+        value = value.replace(tzinfo=pytz.timezone(server_timezone))
+    return value
 
 
 class Event:
     def __init__(self, summary, description, time_start, time_end, location):
         self.summary = summary
         self.description = description
-        self.time_start = time_start
-        self.time_end = time_end
+        self.time_start = ensure_datetime(time_start)
+        self.time_end = ensure_datetime(time_end)
         self.location = location
 
     def to_string(self):
         out = _('*Appointment*\n')
-        out = out + '\t_{text}_: {summary}\n'.format(text=_('Eventsummary'), summary=self.summary)
+        out += '\t_{text}_: {summary}\n'.format(text=_('Eventsummary'), summary=self.summary)
         if str_not_empty(self.description):
-            out = out + '\t_{text}_: {description}\n'.format(text=_('Description'), description=self.description)
+            out += '\t_{text}_: {description}\n'.format(text=_('Description'), description=self.description)
 
-        out = out + '\t_{text}_: '.format(text=_('Begin'))
-        if isinstance(self.time_start, datetime.datetime):
-            out += self.time_start.strftime('%H:%M ' + _("on") + ' %d. %m. %Y\n')
-        else:
-            out += self.time_start.strftime('%d. %m. %Y\n')
+        out += '\t_{text}_: '.format(text=_('Begin'))
+        out += self.time_start.strftime('%H:%M ' + _("on") + ' %d. %m. %Y\n')
 
-        out = out + '\t_{text}_: '.format(text=_('End'))
-        if isinstance(self.time_end, datetime.datetime):
-            out += self.time_end.strftime('%H:%M ' + _("on") + ' %d. %m. %Y\n')
-        else:
-            out += self.time_end.strftime('%d. %m. %Y\n')
+        out += '\t_{text}_: '.format(text=_('End'))
+        out += self.time_end.strftime('%H:%M ' + _("on") + ' %d. %m. %Y\n')
 
         if str_not_empty(self.location):
-            out = out + '\t_{text}_: {location}\n'.format(text=_('Location'), location=self.location)
+            out += '\t_{text}_: {location}\n'.format(text=_('Location'), location=self.location)
         return out + '\n'
 
 
@@ -107,7 +108,7 @@ def send_message(bot, chat_id, message):
         logger.error("Was unable to send message to chatid %d. %s", chat_id, error)
 
 
-def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
+def get_events_diff(silent=True, return_all=False):
     if os.stat(cal_file_name_new).st_mtime > check_interval:
         r = requests.get(cal_url, allow_redirects=True)
         with open(cal_file_name_new, 'wb+') as file:
@@ -124,14 +125,10 @@ def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
         else:
             summary_list = []
         if event.summary not in summary_list or return_all:
-            if isinstance(event.time_start, datetime.datetime):
-                if event.time_start > datetime.datetime.now(pytz.timezone(server_timezone)):
-                    new_events.append(event)
-            else:
-                if event.time_start > datetime.date.today():
-                    new_events.append(event)
+            if event.time_start > datetime.now(pytz.timezone(server_timezone)):
+                new_events.append(event)
 
-    new_events = sorted(new_events, key=lambda x: datetime.datetime.combine(x.time_start, datetime.datetime.min.time()))
+    new_events = sorted(new_events, key=lambda x: datetime.combine(x.time_start, datetime.min.time()))
 
     if len(new_events) != 0:
         logger.debug("Got new event(s): " + "\n\t".join(map(lambda x: x.summary, new_events)))
@@ -141,24 +138,23 @@ def print_events_to_bot_diff(bot, chat_id, silent=True, return_all=False):
         for event in new_events:
             message += event.to_string()
 
-        send_message(bot, chat_id, message)
+        return message
     elif not silent:
-        send_message(bot, chat_id, _('No new events available'))
+        return _('No new events available')
+    return None
 
 
-def remind(bot, chat_id):
+def get_remind_message():
     event_list = create_event_list(cal_file_name)
     remind_list = []
-    now = datetime.datetime.now(pytz.timezone(server_timezone))
+    now = datetime.now(pytz.timezone(server_timezone))
     for event in event_list:
         start_time = event.time_start
-        if isinstance(start_time, datetime.date):
-            start_time = datetime.datetime.combine(start_time, datetime.datetime.min.time())
-            start_time = start_time.replace(tzinfo=pytz.timezone(server_timezone))
         if start_time < now:
             pass
 
         seconds_left = (start_time - now).total_seconds()
+        # TODO make the reminding time configurable
         if 120 * 60 + check_interval / 2 > seconds_left > 120 * 60 - check_interval / 2:
             remind_list.append(event)
     len_remind_list = len(remind_list)
@@ -170,7 +166,8 @@ def remind(bot, chat_id):
             message += '''*{message}*\n\n'''.format(message=_('Attention! The following events are coming up'))
         for event in remind_list:
             message += event.to_string()
-        send_message(bot, chat_id, message)
+        return message
+    return None
 
 
 def overwrite_ics_file():
@@ -187,9 +184,17 @@ def callback_interval(bot, job):
     chat_ids_file = open(chat_ids_file_name, 'r')
     lines = [str(line).replace('\n', '') for line in chat_ids_file]
     chat_ids_file.close()
-    for line in lines:
-        print_events_to_bot_diff(bot, int(line))
-        remind(bot, int(line))
+    # TODO: These two should be handled seperately. Not everybody wants to get reminded every time
+    diff_events = get_events_diff()
+    if diff_events is not None:
+        for line in lines:
+            send_message(bot, int(line), diff_events)
+
+    remind_message = get_remind_message()
+    if remind_message is not None:
+        for line in lines:
+            send_message(bot, int(line), diff_events)
+
     overwrite_ics_file()
 
 
