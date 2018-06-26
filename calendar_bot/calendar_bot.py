@@ -151,10 +151,14 @@ def remind(bot, chat_id):
     remind_list = []
     now = datetime.datetime.now(pytz.timezone(server_timezone))
     for event in event_list:
-        if event.time_start < now:
+        start_time = event.time_start
+        if isinstance(start_time, datetime.date):
+            start_time = datetime.datetime.combine(start_time, datetime.datetime.min.time(),
+                                                   pytz.timezone(server_timezone))
+        if start_time < now:
             pass
 
-        seconds_left = (event.time_start - now).total_seconds()
+        seconds_left = (start_time - now).total_seconds()
         if 120 * 60 + check_interval / 2 > seconds_left > 120 * 60 - check_interval / 2:
             remind_list.append(event)
     len_remind_list = len(remind_list)
