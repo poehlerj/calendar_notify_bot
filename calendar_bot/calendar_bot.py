@@ -207,10 +207,10 @@ def abo(bot, update, remove=False):
         send_message(bot, update.message.chat_id, _('''You weren't subscribed to the event notification system'''))
     else:
         if remove:
-            logger.debug(chat_id + ", " + update.effective_user.username + " did a deabo")
+            logger.debug("%s , %s did a deabo", chat_id, update.effective_user.username)
             lines.remove(chat_id)
         else:
-            logger.debug(chat_id + ", " + update.effective_user.username + " did a abo")
+            logger.debug("%s , %s did a abo", chat_id, update.effective_user.username)
             lines.append(chat_id)
 
         with open(chat_ids_file_name, 'w') as chat_file:
