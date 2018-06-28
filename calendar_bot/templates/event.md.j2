@@ -1,15 +1,18 @@
-*{{ name }}*
+_{{ name }}_
 {% if description -%}
-    _{{- description -}}_
+    {{- description }}
 {% endif -%}
 Am {% if is_include_time(start) -%}
-    _{{ start.strftime('%d. %m. %Y') -}}_
+    *{{ start.strftime('%d. %m. %Y') -}}*
 {%- else -%}
-    _{{- start.strftime('%d. %m. %Y um %H:%M') -}}_
-{%- endif %} bis {% if is_include_time(end) -%}
-    _{{- end.strftime('%d. %m. %Y') -}}_
+    *{{- start.strftime('%d. %m. %Y um %H:%M') -}}*
+{%- endif %}{%- if not all_day %} bis {% if is_include_time(end) -%}
+    *{{- end.strftime('%d. %m. %Y') -}}*
 {%- else -%}
-    _{{- end.strftime('%d. %m. %Y um %H:%M') -}}_
+    *{{- end.strftime('%d. %m. %Y um %H:%M') -}}*
+{%- endif -%}{%- endif -%}
+{% if location %}
+_Veranstaltungsort_: {{ location }}
 {%- endif %}
-{% if location -%}_Veranstaltungsort_: {{ location -}}{% endif %}
+
 {{ nop }}

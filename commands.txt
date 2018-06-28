@@ -1,0 +1,5 @@
+termine - gibt dir alle anstehenden Veranstaltungen in chronologischer Reihenfolge
+abo - [an|aus] (de-)aktiviert die Benachrichtigungsfunktion
+erinnerung - [an|aus] (de-)aktiviert eine Erinnerungsfunktion
+status - zeigt dir an, welche Funktionen du aktiviert oder deaktiviert hast
+hilfe - zeigt dir diesen hilfreichen Text an

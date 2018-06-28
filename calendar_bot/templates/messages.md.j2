@@ -1,13 +1,12 @@
 {% if no_new_events -%}
-    *Keine neuen Veranstaltungen vefügbar*
-
+    *Es sind keine Veranstaltungen eingetragen*
 {% elif new_events -%}
     *Ich habe neue Veranstaltungen für dich*
-
 {% elif reminder_single -%}
     *Achtung! Die folgende Veranstaltung steht an:*
-
 {% elif reminder_multiple -%}
     *Achtung! Die folgenden Veranstaltungen stehen an:*
+{% elif unknown_command %}
+    Unbekanntes Kommando {{ command }}{% if command_args %}{{ command_args }}{% endif %}. Führe /hilfe aus um meine verfügbaren Kommandos zu sehen.
 {% endif %}
 {{ events }}

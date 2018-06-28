@@ -1,0 +1,9 @@
+{% if invalid_remind_on -%}
+    Du hast die Terminerinnerung bereits abonniert
+{%- elif invalid_remind_off -%}
+    Du hast die Terminerinnerung nicht abonniert
+{%- elif not remind -%}
+    Du wirst nun nicht mehr benachrichtigt, wenn ein Termin kurz bevorsteht
+{%- else -%}
+    Du wirst nun benachrichtigt, wenn neue Kalendereinträge hinzukommen
+{%- endif %}

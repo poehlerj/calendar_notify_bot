@@ -1,4 +1,5 @@
-chat_ids.txt
+*.txt
+!commands.txt
 *.ics*
 *_config.py
 !default_public_config.py
