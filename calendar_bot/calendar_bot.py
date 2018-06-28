@@ -2,7 +2,6 @@ import logging
 import logging.config
 import os
 from datetime import datetime
-from typing import List
 
 import pytz
 import requests
@@ -209,29 +208,29 @@ def callback_interval(bot, job):
     overwrite_ics_file()
 
 
-def get_chat_ids(filename: str) -> List[str]:
+def get_chat_ids(filename):
     if not os.path.exists(filename):
         return []
     with open(filename, 'r') as file:
         return [str(line).replace('\n', '') for line in file]
 
 
-def write_chat_ids(chat_ids: List[str], filename: str):
+def write_chat_ids(chat_ids, filename):
     with open(filename, 'w+') as file:
         file.write("\n".join(chat_ids))
 
 
-def check_chat_id(chat_id: str, filename: str) -> bool:
+def check_chat_id(chat_id, filename):
     return chat_id in get_chat_ids(filename)
 
 
-def remove_chat_id(chat_id: str, filename: str):
+def remove_chat_id(chat_id, filename):
     chat_ids = get_chat_ids(filename)
     chat_ids.remove(chat_id)
     write_chat_ids(chat_ids, filename)
 
 
-def add_chat_id(chat_id: str, filename: str):
+def add_chat_id(chat_id, filename):
     chat_ids = get_chat_ids(filename)
     chat_ids.append(chat_id)
     write_chat_ids(chat_ids, filename)
