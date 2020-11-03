@@ -11,6 +11,7 @@ from icalendar import Calendar
 from jinja2 import Environment, PackageLoader, select_autoescape
 from telegram.error import TelegramError
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram import ParseMode
 
 from private_config import telegram_token
 from public_config import cal_url, check_interval, cal_file_name_new, cal_file_name, server_timezone, \
@@ -187,23 +188,23 @@ def overwrite_ics_file():
             current_events_file.writelines(new_events_file)
 
 
-def events(bot, update):
+def events(update, context):
     message = get_events_diff(silent=False, return_all=True)
-    send_message(bot, update.effective_chat.id, message)
+    send_message(context.bot, update.effective_chat.id, message)
 
 
-def callback_interval(bot, job):
+def callback_interval(context):
     events_sub_ids = get_chat_ids(sub_chat_ids_file_name)
     diff_events = get_events_diff()
     if diff_events is not None:
         for line in events_sub_ids:
-            send_message(bot, int(line), diff_events)
+            send_message(context.bot, int(line), diff_events)
 
     remind_sub_ids = get_chat_ids(remind_chat_ids_file_name)
     remind_message = get_remind_message()
     if remind_message is not None:
         for line in remind_sub_ids:
-            send_message(bot, int(line), remind_message)
+            send_message(context.bot, int(line), remind_message)
 
     overwrite_ics_file()
 
@@ -236,8 +237,9 @@ def add_chat_id(chat_id, filename):
     write_chat_ids(chat_ids, filename)
 
 
-def abo(bot, update, args):
+def abo(update, context):
     remove = False
+    args = context.args
     if len(args) == 1:
         if args[0] == "an":
             pass
@@ -253,24 +255,25 @@ def abo(bot, update, args):
     if has_subscribed and not remove:
         logger.debug("%s, %s tried to subscribe, but was already receiving notifications", chat_id,
                      update.effective_user.username)
-        send_message(bot, update.message.chat_id, sub_unsub_template.render(invalid_sub=True))
+        send_message(context.bot, update.message.chat_id, sub_unsub_template.render(invalid_sub=True))
     elif not has_subscribed and remove:
         logger.debug("%s, %s tried to unsubscribe, but was not receiving notifications", chat_id,
                      update.effective_user.username)
-        send_message(bot, update.message.chat_id, sub_unsub_template.render(invalid_unsub=True))
+        send_message(context.bot, update.message.chat_id, sub_unsub_template.render(invalid_unsub=True))
     else:
         if remove:
             logger.debug("%s , %s unsubscribed", chat_id, update.effective_user.username)
             remove_chat_id(chat_id, sub_chat_ids_file_name)
-            send_message(bot, update.message.chat_id, sub_unsub_template.render(unsub=True))
+            send_message(context.bot, update.message.chat_id, sub_unsub_template.render(unsub=True))
         else:
             logger.debug("%s , %s subscribed", chat_id, update.effective_user.username)
             add_chat_id(chat_id, sub_chat_ids_file_name)
-            send_message(bot, update.message.chat_id, sub_unsub_template.render(sub=True))
+            send_message(context.bot, update.message.chat_id, sub_unsub_template.render(sub=True))
 
 
-def remind(bot, update, args):
+def remind(update, context):
     remove = False
+    args = context.args
     if len(args) == 1:
         if args[0] == "an":
             pass
@@ -286,33 +289,33 @@ def remind(bot, update, args):
     if has_subscribed and not remove:
         logger.debug("%s, %s tried to turn on reminder, but was already receiving notifications", chat_id,
                      update.effective_user.username)
-        send_message(bot, update.message.chat_id, reminder_template.render(invalid_remind_on=True))
+        send_message(context.bot, update.message.chat_id, reminder_template.render(invalid_remind_on=True))
     elif not has_subscribed and remove:
         logger.debug("%s, %s tried to turn off reminder, but was not receiving notifications", chat_id,
                      update.effective_user.username)
-        send_message(bot, update.message.chat_id, reminder_template.render(invalid_remind_off=True))
+        send_message(context.bot, update.message.chat_id, reminder_template.render(invalid_remind_off=True))
     else:
         if remove:
             logger.debug("%s , %s turned off reminder", chat_id, update.effective_user.username)
             remove_chat_id(chat_id, remind_chat_ids_file_name)
-            send_message(bot, update.message.chat_id, reminder_template.render())
+            send_message(context.bot, update.message.chat_id, reminder_template.render())
         else:
             logger.debug("%s , %s turned on reminder", chat_id, update.effective_user.username)
             add_chat_id(chat_id, remind_chat_ids_file_name)
-            send_message(bot, update.message.chat_id, reminder_template.render(remind=True))
+            send_message(context.bot, update.message.chat_id, reminder_template.render(remind=True))
 
 
-def print_status(bot, update):
+def print_status(update, context):
     has_subscribed = str(update.message.chat_id) in get_chat_ids(sub_chat_ids_file_name)
     has_reminder = str(update.message.chat_id) in get_chat_ids(remind_chat_ids_file_name)
     status_message = status_template.render(
         notify=has_subscribed,
         remind=has_reminder
     )
-    send_message(bot, update.message.chat_id, status_message)
+    send_message(context.bot, update.message.chat_id, status_message)
 
 
-def print_help(bot, update):
+def print_help(update, context):
     help_message = help_template.render(
         appointments='termine',
         sub='abo',
@@ -320,11 +323,11 @@ def print_help(bot, update):
         status='status',
         help='hilfe'
     )
-    send_message(bot, update.message.chat_id, help_message)
+    send_message(context.bot, update.message.chat_id, help_message)
 
 
-def unknown_command_callback(bot, update):
-    print_unknown_command(bot, update.message.chat_id, update.message.text, [])
+def unknown_command_callback(update, context):
+    print_unknown_command(context.bot, update.message.chat_id, update.message.text, [])
 
 
 def print_version_info_if_needed(bot):
@@ -340,13 +343,13 @@ def print_version_info_if_needed(bot):
         version_text = version_template.render(version=__version__)
         chat_ids = set().union(get_chat_ids(sub_chat_ids_file_name), get_chat_ids(remind_chat_ids_file_name))
         for chat_id in chat_ids:
-            send_message(bot, int(chat_id), version_text)
+            bot.send_message(int(chat_id), version_text)
         with open(version_file, 'w+') as file:
             file.write(__version__)
 
 
 def main():
-    updater = Updater(telegram_token)
+    updater = Updater(telegram_token, use_context=True)
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('termine', events))
     dp.add_handler(CommandHandler('abo', abo, pass_args=True))
