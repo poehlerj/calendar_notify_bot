@@ -9,3 +9,6 @@ logs/
 *__pycache__*
 *.egg-info/
 dist/
+.venv/
+build/
+
